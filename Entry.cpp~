@@ -356,6 +356,7 @@ Purpose:    This will convert an unsigned int to a string format. It uses a
             sequence creates a reverse order that will be popped back into 
             regular order from the FILO data structure. When popping from the 
             stack, ret_str gets appended in correct order char by char by adding
+            
 ..............................................................................*/
 void Entry :: reset()
 {
