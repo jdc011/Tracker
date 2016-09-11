@@ -12,6 +12,7 @@ Description:   This contains all the implementation for entry type data. Fields
                to a hard disk and removes data accordingly saving every state
                recorded in RAM to the disk.
 =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~*/
+#include <iostream>
 #include "Entry.hpp"
 #include <stdlib.h> /* needed for getenv function to retrieve file reading 
                        directories */
@@ -39,7 +40,7 @@ std :: vector<std :: string> Entry :: assign_fields()
    char character;
    std :: string all_data = "";
    std :: vector<std :: string> ret_vector = 
-      std :: vector<std :: string>(this->get_amt(), (std :: string) 0);
+      std :: vector<std :: string>(this->get_amt(), (std :: string) "");
 
    file_dir = file_dir + FIELDS_DIR;
    reader.open(file_dir.c_str());
@@ -68,6 +69,25 @@ std :: vector<std :: string> Entry :: assign_fields()
    reader.close();
 
    return ret_vector;
+}
+
+std :: vector<std :: string> Entry :: add_vals(std :: ofstream & data, 
+                                               const std :: 
+                                               vector<std :: string> values)
+{
+   std :: ifstream reader;
+   std :: ofstream vals;
+   std :: string data_dir = getenv("HOME");
+   data_dir = data_dir + DATA_DIR + itos(this->occupancy); 
+   
+   data.open(data_dir.c_str(), std :: ios_base :: app);
+  
+   for(unsigned int index = 0; index < values.size(); ++index)
+      data << values[index] << TAB;
+   
+   data.close();
+
+   return values;
 }
 
 /*..............................................................................
@@ -99,6 +119,20 @@ unsigned int Entry :: assign_amt()
    return amt;
 }
 
+unsigned int Entry :: assign_occ()
+{
+   std :: ifstream reader;
+   std :: string file_dir = getenv("HOME");
+   unsigned int occ;
+
+   file_dir = file_dir + OCC_DIR;
+   reader.open(file_dir.c_str());
+   reader >> occ;
+   reader.close();
+
+   return occ;
+}
+
 /*..............................................................................
 Name:       Entry
 
@@ -117,6 +151,7 @@ Purpose:    This will convert an unsigned int to a string format. It uses a
 Entry :: Entry()
 {
    this->field_amt = this->assign_amt();
+   this->occupancy = this->assign_occ();
    this->fields = this->assign_fields();
 }
 
@@ -135,21 +170,16 @@ Purpose:    This will convert an unsigned int to a string format. It uses a
             CHAR to the corresponding current int storing this into a char
             casted variable.
 ..............................................................................*/
-Entry :: Entry(std :: vector<std :: string> & vals, 
-               std :: ofstream & data)
+Entry :: Entry(std :: vector<std :: string> & vals, std :: ofstream & data)
 {
-   std :: string current_file = getenv("HOME");
-   this->vals = std :: vector<std :: string>(this->get_amt(), 
-                                             (std :: string) 0);
-
-   for(int index = 0; index < this->get_amt(); ++index)
-   {
-      current_file = current_file + DATA_DIR + itos(index);
-      this->fields[index] = vals[index];
-      data.open(current_file.c_str());
-      data << this->fields[index] << TAB;
-      data.close();
-   }
+   std :: string occ_file = getenv("HOME");
+   
+   occ_file = occ_file + OCC_DIR;
+   ++this->occupancy;   
+   data.open(occ_file.c_str());
+   data << this->occupancy;
+   data.close();
+   this->vals = this->add_vals(data, vals);
 }
 
 /*..............................................................................
@@ -190,7 +220,7 @@ long Entry :: add_field(std :: ofstream & data, const std :: string & arg)
    amt << this->field_amt;
    amt.close();
    this->fields = std :: vector<std :: string>(this->get_amt(), 
-                                               (std :: string) 0);
+                                               (std :: string) "");
    file_dir = file_dir + FIELDS_DIR;
    data.open(file_dir.c_str(), std :: ios_base :: app);
    data << arg << TAB;
@@ -276,7 +306,7 @@ long Entry :: remove_field(std :: ofstream & data, const std :: string & arg)
          amt << this->field_amt;
          amt.close();
          this->fields = std :: vector<std :: string>(this->get_amt(),
-                                                     (std :: string) 0);
+                                                     (std :: string) "");
          break;
       }
 
@@ -330,19 +360,37 @@ Purpose:    This will convert an unsigned int to a string format. It uses a
 ..............................................................................*/
 void Entry :: reset()
 {
-   std :: ofstream fields_reader,
-                   amt_reader;
+   int current;
+   std :: ofstream data_reader,
+                   fields_reader,
+                   amt_reader,
+                   occ_reader;
+   std :: string data_dir = getenv("HOME");
    std :: string fields_dir = getenv("HOME");
    std :: string amt_dir = getenv("HOME");
+   std :: string occ_dir = getenv("HOME");
+
+   for(current = 1; current <= this->occupancy; ++current)
+   {
+      data_dir = data_dir + DATA_DIR + itos(current);
+      data_reader.open(data_dir.c_str());
+      data_reader << "";
+      data_reader.close();
+      data_dir = getenv("HOME");
+   }
 
    fields_dir = fields_dir + FIELDS_DIR;
    amt_dir = amt_dir + AMT_DIR;
+   occ_dir = occ_dir + OCC_DIR; 
    fields_reader.open(fields_dir.c_str());
    amt_reader.open(amt_dir.c_str());
+   occ_reader.open(occ_dir.c_str());
    fields_reader << "";
    amt_reader << 0;
+   occ_reader << 0;
    fields_reader.close();
    amt_reader.close();
+   occ_reader.close();
    this->field_amt = this->assign_amt();
    this->fields = this->assign_fields();
 }
@@ -360,6 +408,11 @@ unsigned int Entry :: get_amt()
 {
    /* return the field_amt datafield */
    return this->field_amt;
+}
+
+unsigned int Entry :: get_occupancy()
+{
+   return this->occupancy;
 }
 
 /*..............................................................................

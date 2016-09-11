@@ -59,10 +59,14 @@ class Entry
       std :: vector<std :: string> fields; 
       std :: vector<std :: string> vals;
       unsigned int field_amt;
+      unsigned int occupancy;
 
       /* helper functions in initializing fields */
       std :: vector<std :: string> assign_fields(void);
+      std :: vector<std :: string> add_vals(std :: ofstream &, 
+                                            const std :: vector<std :: string>);
       unsigned int assign_amt(void);
+      unsigned int assign_occ(void);
 
    /* functions */
    public:
@@ -72,6 +76,7 @@ class Entry
       long remove_field(std :: ofstream &, const std :: string &);
       void reset(void);
       unsigned int get_amt(void);
+      unsigned int get_occupancy(void);
       std :: vector<std :: string> get_fields(void);
       std :: vector<std :: string> get_vals(void);
 };

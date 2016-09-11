@@ -4,6 +4,8 @@
 #include <stdlib.h> /* needed for getenv function to retrieve file reading 
                        directories */
 
+using namespace std;
+
 static unsigned int find_index(const std :: string &);
 
 List :: List()
@@ -265,6 +267,7 @@ int main()
 {
    std :: ofstream fio;
    Entry entry;
+   entry.reset();
    std :: string one = "name";
    std :: string two = "number";
    std :: string & rone = one;
@@ -272,8 +275,8 @@ int main()
    entry.add_field(fio, rone);
    entry.add_field(fio, rtwo);
 
-   std :: vector<std :: string> args1 = std :: vector<std :: string>(2, (std :: string) 0);
-   std :: vector<std :: string> args2 = std :: vector<std :: string>(2, (std :: string) 0);
+   std :: vector<std :: string> args1 = std :: vector<std :: string>(2, (std :: string) "");
+   std :: vector<std :: string> args2 = std :: vector<std :: string>(2, (std :: string) "");
 
    args1[0] = "John";
    args1[1] = "123";
@@ -286,6 +289,6 @@ int main()
    List list;
    list.insert(data1, rone, entry);
    list.insert(data2, rone, entry);
-      
+
    return 0;
 }

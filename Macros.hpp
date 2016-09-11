@@ -23,3 +23,4 @@ const char TAB = '\t';
 const std :: string DATA_DIR = "/tracker/data/";
 const std :: string FIELDS_DIR = "/tracker/fields/fields";
 const std :: string AMT_DIR = "/tracker/data/amt";
+const std :: string OCC_DIR = "/tracker/data/occ";
